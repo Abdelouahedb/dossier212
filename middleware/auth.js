@@ -4,7 +4,11 @@ let adminPasswordHash = null;
 
 const getPasswordHash = () => {
     if (!adminPasswordHash) {
-        const plainPassword = process.env.ADMIN_PASSWORD || 'admin';
+        const plainPassword = process.env.ADMIN_PASSWORD;
+        if (!plainPassword) {
+            console.error("ERROR: ADMIN_PASSWORD environment variable is not set.");
+            process.exit(1); // Stop the server if no password is set
+        }
         adminPasswordHash = bcrypt.hashSync(plainPassword, 10);
     }
     return adminPasswordHash;
@@ -18,8 +22,8 @@ const requireAuth = (req, res, next) => {
 };
 
 const attemptLogin = (username, password) => {
-    const adminUsername = process.env.ADMIN_USERNAME || 'admin';
-    if (username !== adminUsername) {
+    const adminUsername = process.env.ADMIN_USERNAME;
+    if (!adminUsername || username !== adminUsername) {
         return false;
     }
     
