@@ -3,7 +3,6 @@ const express = require('express');
 const path = require('path');
 const helmet = require('helmet');
 const compression = require('compression');
-const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const { getDb } = require('./database/init'); // Initialize database
 
@@ -39,16 +38,14 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 
-// Session setup
-app.use(session({
+// Session setup (Serverless compatible)
+const cookieSession = require('cookie-session');
+app.use(cookieSession({
+  name: 'session',
   secret: process.env.SESSION_SECRET || 'dossier-secret-212',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { 
-    secure: process.env.NODE_ENV === 'production', 
-    httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
-  }
+  maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+  secure: process.env.NODE_ENV === 'production',
+  httpOnly: true
 }));
 
 // Global variables for templates
