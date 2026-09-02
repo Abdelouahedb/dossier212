@@ -40,6 +40,7 @@ app.use(cookieParser());
 
 // Session setup (Serverless compatible)
 const cookieSession = require('cookie-session');
+app.set('trust proxy', 1); // Trust Vercel's proxy so secure cookies work
 app.use(cookieSession({
   name: 'session',
   secret: process.env.SESSION_SECRET || 'dossier-secret-212',
