@@ -4,56 +4,50 @@ const { getDb } = require('../database/init');
 const marked = require('marked');
 
 // Helper to fetch multiple rows safely
-function fetchAll(db, sql, params = []) {
-  const stmt = db.prepare(sql);
-  stmt.bind(params);
-  const rows = [];
-  while (stmt.step()) {
-    rows.push(stmt.getAsObject());
-  }
-  stmt.free();
-  return rows;
+async function fetchAll(db, sql, params = []) {
+  let pgSql = sql;
+  let i = 1;
+  while (pgSql.includes('?')) { pgSql = pgSql.replace('?', '$' + i++); }
+  const result = await db.query(pgSql, params);
+  return result.rows;
 }
 
 // Helper to fetch single row safely
-function fetchOne(db, sql, params = []) {
-  const stmt = db.prepare(sql);
-  stmt.bind(params);
-  let row = null;
-  if (stmt.step()) {
-    row = stmt.getAsObject();
-  }
-  stmt.free();
-  return row;
+async function fetchOne(db, sql, params = []) {
+  let pgSql = sql;
+  let i = 1;
+  while (pgSql.includes('?')) { pgSql = pgSql.replace('?', '$' + i++); }
+  const result = await db.query(pgSql, params);
+  return result.rows[0] || null;
 }
 
 router.get('/', async (req, res) => {
   const db = await getDb();
   
-  const featured = fetchOne(db, "SELECT * FROM dossiers WHERE est_a_la_une = 1 AND est_publie = 1 LIMIT 1");
-  const latest = fetchAll(db, "SELECT * FROM dossiers WHERE est_publie = 1 ORDER BY date_publication DESC LIMIT 6");
+  const featured = await fetchOne(db, "SELECT * FROM dossiers WHERE est_a_la_une = 1 AND est_publie = 1 LIMIT 1");
+  const latest = await fetchAll(db, "SELECT * FROM dossiers WHERE est_publie = 1 ORDER BY date_publication DESC LIMIT 6");
   
   const categoriesList = ['maroc', 'monde', 'disparitions', 'non-resolus', 'archives', 'justice'];
   const categories = {};
   
-  categoriesList.forEach(cat => {
-    categories[cat] = fetchAll(db, "SELECT * FROM dossiers WHERE categorie = ? AND est_publie = 1 LIMIT 4", [cat]);
-  });
+  for (const cat of categoriesList) {
+    categories[cat] = await fetchAll(db, "SELECT * FROM dossiers WHERE categorie = ? AND est_publie = 1 LIMIT 4", [cat]);
+  }
   
   res.render('public/index', { featured, latest, categories });
 });
 
 router.get('/dossier/:slug', async (req, res) => {
   const db = await getDb();
-  const dossier = fetchOne(db, "SELECT * FROM dossiers WHERE slug = ? AND est_publie = 1", [req.params.slug]);
+  const dossier = await fetchOne(db, "SELECT * FROM dossiers WHERE slug = ? AND est_publie = 1", [req.params.slug]);
   
   if (!dossier) {
     return res.status(404).render('public/error', { message: 'Dossier non trouvé' });
   }
   
-  const personnes = fetchAll(db, "SELECT * FROM personnes WHERE dossier_id = ?", [dossier.id]);
-  const chronologie = fetchAll(db, "SELECT * FROM chronologie WHERE dossier_id = ? ORDER BY ordre", [dossier.id]);
-  const images = fetchAll(db, "SELECT * FROM images WHERE dossier_id = ?", [dossier.id]);
+  const personnes = await fetchAll(db, "SELECT * FROM personnes WHERE dossier_id = ?", [dossier.id]);
+  const chronologie = await fetchAll(db, "SELECT * FROM chronologie WHERE dossier_id = ? ORDER BY ordre", [dossier.id]);
+  const images = await fetchAll(db, "SELECT * FROM images WHERE dossier_id = ?", [dossier.id]);
   
   const lang = res.locals.lang;
   const intro = lang === 'en' && dossier.introduction_en ? dossier.introduction_en : dossier.introduction_fr;
@@ -79,10 +73,10 @@ router.get('/categorie/:cat', async (req, res) => {
   const limit = 12;
   const offset = (page - 1) * limit;
   
-  const countRow = fetchOne(db, "SELECT COUNT(*) as count FROM dossiers WHERE categorie = ? AND est_publie = 1", [cat]);
+  const countRow = await fetchOne(db, "SELECT COUNT(*) as count FROM dossiers WHERE categorie = ? AND est_publie = 1", [cat]);
   const totalPages = Math.ceil((countRow ? countRow.count : 0) / limit);
   
-  const dossiers = fetchAll(db, "SELECT * FROM dossiers WHERE categorie = ? AND est_publie = 1 ORDER BY date_publication DESC LIMIT ? OFFSET ?", [cat, limit, offset]);
+  const dossiers = await fetchAll(db, "SELECT * FROM dossiers WHERE categorie = ? AND est_publie = 1 ORDER BY date_publication DESC LIMIT ? OFFSET ?", [cat, limit, offset]);
   
   res.render('public/categorie', { categorie: cat, dossiers, page, totalPages });
 });
