@@ -1498,6 +1498,17 @@ blockquote {
     --gap-xl: 3rem;
   }
   
+  .footer-top {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .footer-links {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+  
   h1 { font-size: 2.2rem; }
   .hero-title { font-size: 2.5rem; }
   .dossier-titre { font-size: 2.5rem; }
