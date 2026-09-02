@@ -109,7 +109,12 @@ router.post('/images/upload', upload.single('image'), async (req, res) => {
 
   try {
     const db = await getDb();
-    await query(db, 'INSERT INTO images (chemin, cloudinary_public_id) VALUES (?, ?)', [req.file.path, req.file.filename]);
+    await (async (sql, params = []) => {
+      let pgSql = sql;
+      let i = 1;
+      while (pgSql.includes('?')) { pgSql = pgSql.replace('?', () => '$' + i); i++; }
+      return db.query(pgSql, params);
+    })('INSERT INTO images (chemin, cloudinary_public_id) VALUES (?, ?)', [req.file.path, req.file.filename]);
     res.redirect('/admin/images');
   } catch (error) {
     console.error('Unable to save uploaded image:', error);
@@ -335,7 +340,12 @@ router.post('/dossier/:id/upload', upload.array('images'), async (req, res) => {
   const id = req.params.id;
   if (req.files && req.files.length > 0) {
     await Promise.all(req.files.map((file) =>
-      query(db, 'INSERT INTO images (dossier_id, chemin, cloudinary_public_id) VALUES (?, ?, ?)', [id, file.path, file.filename])
+      (async (sql, params = []) => {
+      let pgSql = sql;
+      let i = 1;
+      while (pgSql.includes('?')) { pgSql = pgSql.replace('?', () => '$' + i); i++; }
+      return db.query(pgSql, params);
+    })('INSERT INTO images (dossier_id, chemin, cloudinary_public_id) VALUES (?, ?, ?)', [id, file.path, file.filename])
     ));
   }
   res.redirect(`/admin/dossier/${id}/edit`);
