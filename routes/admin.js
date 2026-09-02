@@ -179,7 +179,7 @@ router.post('/dossier/new', async (req, res) => {
       let i = 1;
       while (pgSql.includes('?')) { pgSql = pgSql.replace('?', '$' + i); i++; }
       return db.query(pgSql, params);
-    })("INSERT INTO personnes (dossier_id, nom, role, description_fr) VALUES (?, ?, ?, ?)", [dossierId, p.nom, p.role, p.description_fr]);
+    })("INSERT INTO personnes (dossier_id, nom, role, description_fr, description_en) VALUES (?, ?, ?, ?, ?)", [dossierId, p.nom, p.role, p.description_fr, p.description_en]);
       }
     }
 
@@ -194,7 +194,7 @@ router.post('/dossier/new', async (req, res) => {
       let i = 1;
       while (pgSql.includes('?')) { pgSql = pgSql.replace('?', '$' + i); i++; }
       return db.query(pgSql, params);
-    })("INSERT INTO chronologie (dossier_id, date_evenement, description_fr, ordre) VALUES (?, ?, ?, ?)", [dossierId, c.date_evenement, c.description_fr, c.ordre || 0]);
+    })("INSERT INTO chronologie (dossier_id, date_evenement, description_fr, description_en, ordre) VALUES (?, ?, ?, ?, ?)", [dossierId, c.date_evenement, c.description_fr, c.description_en, c.ordre || 0]);
       }
     }
 
@@ -285,7 +285,7 @@ router.post('/dossier/:id/edit', async (req, res) => {
       let i = 1;
       while (pgSql.includes('?')) { pgSql = pgSql.replace('?', '$' + i); i++; }
       return db.query(pgSql, params);
-    })("INSERT INTO personnes (dossier_id, nom, role, description_fr) VALUES (?, ?, ?, ?)", [id, p.nom, p.role, p.description_fr]);
+    })("INSERT INTO personnes (dossier_id, nom, role, description_fr, description_en) VALUES (?, ?, ?, ?, ?)", [id, p.nom, p.role, p.description_fr, p.description_en]);
       }
     }
 
@@ -306,7 +306,7 @@ router.post('/dossier/:id/edit', async (req, res) => {
       let i = 1;
       while (pgSql.includes('?')) { pgSql = pgSql.replace('?', '$' + i); i++; }
       return db.query(pgSql, params);
-    })("INSERT INTO chronologie (dossier_id, date_evenement, description_fr, ordre) VALUES (?, ?, ?, ?)", [id, c.date_evenement, c.description_fr, c.ordre || 0]);
+    })("INSERT INTO chronologie (dossier_id, date_evenement, description_fr, description_en, ordre) VALUES (?, ?, ?, ?, ?)", [id, c.date_evenement, c.description_fr, c.description_en, c.ordre || 0]);
       }
     }
 
