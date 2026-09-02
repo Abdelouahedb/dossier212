@@ -1,0 +1,32 @@
+<% const navT = { 
+  fr: { maroc: 'Maroc', monde: 'Monde', disparitions: 'Disparitions', nonResolus: 'Non résolus', archives: 'Archives', justice: 'Justice', about: 'À propos' }, 
+  en: { maroc: 'Morocco', monde: 'World', disparitions: 'Missing', nonResolus: 'Unsolved', archives: 'Archives', justice: 'Justice', about: 'About' } 
+}; 
+const nt = navT[typeof lang !== 'undefined' ? lang : 'en']; %>
+<header class="nav-bar" id="navbar">
+  <div class="container flex-between">
+    <a href="/" class="nav-logo">DOSSIER <span>212</span></a>
+    <nav class="nav-links" id="navLinks">
+      <a href="/categorie/maroc" class="nav-link"><%= nt.maroc %></a>
+      <a href="/categorie/monde" class="nav-link"><%= nt.monde %></a>
+      <a href="/categorie/disparitions" class="nav-link"><%= nt.disparitions %></a>
+      <a href="/categorie/non-resolus" class="nav-link"><%= nt.nonResolus %></a>
+      <a href="/categorie/archives" class="nav-link"><%= nt.archives %></a>
+      <a href="/categorie/justice" class="nav-link"><%= nt.justice %></a>
+      <a href="/a-propos" class="nav-link"><%= nt.about %></a>
+    </nav>
+    <div class="nav-right">
+      <div class="nav-lang lang-toggle">
+        <a href="/set-lang/fr" class="nav-lang-btn <%= (typeof lang === 'undefined' || lang === 'fr') ? 'active' : '' %>">FR</a>
+        <span class="nav-lang-sep">|</span>
+        <a href="/set-lang/en" class="nav-lang-btn <%= (typeof lang !== 'undefined' && lang === 'en') ? 'active' : '' %>">EN</a>
+      </div>
+      <button class="nav-theme-toggle theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <span class="theme-icon">☀</span>
+      </button>
+      <button class="nav-hamburger mobile-menu-btn" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>

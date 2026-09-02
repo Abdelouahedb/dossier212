@@ -1,0 +1,59 @@
+<% const catNames = { 
+  fr: { maroc: 'Maroc', monde: 'Monde', disparitions: 'Disparitions', 'non-resolus': 'Non résolus', archives: 'Archives', justice: 'Justice' }, 
+  en: { maroc: 'Morocco', monde: 'World', disparitions: 'Missing Persons', 'non-resolus': 'Unsolved', archives: 'Archives', justice: 'Justice' } 
+}; 
+const currentLang = typeof lang !== 'undefined' ? lang : 'en';
+const catTitle = catNames[currentLang][categorie] || categorie;
+%>
+<!DOCTYPE html>
+<html lang="<%= currentLang %>" data-theme="<%= typeof theme !== 'undefined' ? theme : 'dark' %>">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= catTitle %> — DOSSIER 212</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/header') %>
+  
+  <main class="section fade-in">
+    <div class="container">
+      <header class="section-title">
+        <h1><%= catTitle.toUpperCase() %></h1>
+      </header>
+
+      <% if (typeof dossiers !== 'undefined' && dossiers.length > 0) { %>
+        <div class="grid-3">
+          <% dossiers.forEach(dossier => { %>
+            <%- include('../partials/dossier-card', { dossier, lang: currentLang }) %>
+          <% }) %>
+        </div>
+        
+        <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
+          <div class="pagination flex-between" style="margin-top: 40px;">
+            <% if (page > 1) { %>
+              <a href="?page=<%= page - 1 %>" class="nav-link">← Précédent</a>
+            <% } else { %>
+              <span></span>
+            <% } %>
+            <span>Page <%= page %> / <%= totalPages %></span>
+            <% if (page < totalPages) { %>
+              <a href="?page=<%= page + 1 %>" class="nav-link">Suivant →</a>
+            <% } else { %>
+              <span></span>
+            <% } %>
+          </div>
+        <% } %>
+      <% } else { %>
+        <p><%= currentLang === 'en' ? 'No dossiers found in this category.' : 'Aucun dossier trouvé dans cette catégorie.' %></p>
+      <% } %>
+    </div>
+  </main>
+  
+  <%- include('../partials/footer') %>
+  <script src="/js/main.js"></script>
+</body>
+</html>

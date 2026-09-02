@@ -1,0 +1,10 @@
+<div class="timeline">
+  <% if (typeof chronologie !== 'undefined' && chronologie && chronologie.length > 0) { %>
+    <% chronologie.forEach(function(event) { %>
+      <div class="timeline-item fade-in">
+        <div class="timeline-date"><%= event.date_evenement %></div>
+        <div class="timeline-text"><%= typeof lang !== 'undefined' && lang === 'en' && event.description_en ? event.description_en : event.description_fr %></div>
+      </div>
+    <% }); %>
+  <% } %>
+</div>

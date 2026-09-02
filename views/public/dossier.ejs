@@ -1,0 +1,96 @@
+<% const t = (typeof lang !== 'undefined' && lang === 'en') ? {
+  signature: 'Crimes. Disappearances. Investigations.',
+  readTime: 'min read',
+  persons: 'KEY FIGURES',
+  timeline: 'TIMELINE'
+} : {
+  signature: 'Crimes. Disparitions. Enquêtes.',
+  readTime: 'min de lecture',
+  persons: 'FIGURES CLÉS',
+  timeline: 'CHRONOLOGIE'
+}; %>
+<!DOCTYPE html>
+<html lang="<%= typeof lang !== 'undefined' ? lang : 'en' %>" data-theme="<%= typeof theme !== 'undefined' ? theme : 'dark' %>">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof pageTitle !== 'undefined' ? pageTitle + ' — DOSSIER 212' : 'DOSSIER 212' %></title>
+  <meta name="description" content="<%= (typeof lang !== 'undefined' && lang === 'en' && dossier.introduction_en) ? dossier.introduction_en : dossier.introduction_fr %>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="reading-progress" id="readingProgress"></div>
+  <%- include('../partials/header') %>
+  
+  <main class="dossier-content fade-in">
+    <div class="container content-width">
+      <header class="dossier-header">
+        <div class="dossier-numero">DOSSIER <%= String(dossier.numero).padStart(3, '0') %></div>
+        <div class="dossier-lieu"><%= dossier.lieu %></div>
+        <h1 class="dossier-titre"><%= (typeof lang !== 'undefined' && lang === 'en' && dossier.titre_en) ? dossier.titre_en : dossier.titre_fr %></h1>
+        <div class="dossier-periode"><%= dossier.periode %></div>
+        <div class="dossier-tags"><%= dossier.tags %></div>
+        <div class="flex-between">
+          <span class="status-badge status-<%= dossier.statut %>"><%= dossier.statut.replace(/_/g, ' ').toUpperCase() %></span>
+          <span class="dossier-temps"><%= dossier.temps_lecture %> <%= t.readTime %></span>
+        </div>
+      </header>
+
+      <% if (typeof images !== 'undefined' && images.length > 0) { %>
+        <div class="featured-img-wrap" style="margin: 2rem 0; width: 100%;">
+          <img src="<%= images[0].chemin %>" alt="<%= dossier.titre_fr %>" style="width: 100%; max-height: 500px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border);">
+          <% if (images[0].legende) { %>
+            <figcaption style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-top: 10px;"><%= images[0].legende %></figcaption>
+          <% } %>
+        </div>
+      <% } %>
+
+      <% if (dossier.coordonnees) { %>
+        <div class="fact-card fact-card--location">
+          <div class="fact-text"><%= dossier.coordonnees %></div>
+        </div>
+      <% } %>
+
+      <div class="dossier-introduction">
+        <%- typeof renderedIntro !== 'undefined' ? renderedIntro : '' %>
+      </div>
+
+      <article class="dossier-body">
+        <%- typeof renderedContent !== 'undefined' ? renderedContent : '' %>
+      </article>
+
+      <% if (typeof personnes !== 'undefined' && personnes.length > 0) { %>
+        <section class="section">
+          <h2 class="section-title"><%= t.persons %></h2>
+          <div class="personnes-grid">
+            <% personnes.forEach(personne => { %>
+              <div class="personne-card">
+                <h3 class="personne-nom"><%= personne.nom %></h3>
+                <div class="personne-role"><%= personne.role %></div>
+                <p class="personne-desc"><%= (typeof lang !== 'undefined' && lang === 'en' && personne.description_en) ? personne.description_en : personne.description_fr %></p>
+              </div>
+            <% }) %>
+          </div>
+        </section>
+      <% } %>
+
+      <% if (typeof chronologie !== 'undefined' && chronologie.length > 0) { %>
+        <section class="section">
+          <h2 class="section-title"><%= t.timeline %></h2>
+          <%- include('../partials/timeline', { chronologie, lang: typeof lang !== 'undefined' ? lang : 'en' }) %>
+        </section>
+      <% } %>
+
+      <% if (typeof renderedSources !== 'undefined' && renderedSources) { %>
+        <%- include('../partials/sources', { renderedSources, lang: typeof lang !== 'undefined' ? lang : 'en' }) %>
+      <% } %>
+    </div>
+  </main>
+  
+  <%- include('../partials/footer') %>
+  <script src="/js/main.js"></script>
+</body>
+</html>

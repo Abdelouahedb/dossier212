@@ -1,0 +1,27 @@
+<article class="dossier-card fade-in">
+  <a href="/dossier/<%= dossier.slug %>">
+    <% if (dossier.image_principale) { %>
+      <div class="card-image">
+        <img src="/uploads/<%= dossier.image_principale %>" alt="<%= typeof lang !== 'undefined' && lang === 'en' && dossier.titre_en ? dossier.titre_en : dossier.titre_fr %>" loading="lazy">
+      </div>
+    <% } else { %>
+      <div class="card-image card-image--placeholder">
+        <span class="card-image-numero">DOSSIER <%= String(dossier.numero).padStart(3, '0') %></span>
+      </div>
+    <% } %>
+    <div class="card-body">
+      <div class="card-meta">
+        DOSSIER <%= String(dossier.numero).padStart(3, '0') %> · <%= dossier.categorie ? dossier.categorie.toUpperCase() : '' %>
+      </div>
+      <h3 class="card-title"><%= typeof lang !== 'undefined' && lang === 'en' && dossier.titre_en ? dossier.titre_en : dossier.titre_fr %></h3>
+      <p class="card-excerpt">
+        <% const intro = typeof lang !== 'undefined' && lang === 'en' && dossier.introduction_en ? dossier.introduction_en : dossier.introduction_fr; %>
+        <%= intro ? intro.substring(0, 150) + '...' : '' %>
+      </p>
+      <div class="card-footer">
+        <span class="status-badge status-<%= dossier.statut %>"><%= dossier.statut ? dossier.statut.replace(/_/g, ' ').toUpperCase() : '' %></span>
+        <span><%= dossier.temps_lecture || 0 %> min</span>
+      </div>
+    </div>
+  </a>
+</article>

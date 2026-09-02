@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Images — Admin DOSSIER 212</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-logo" style="padding: 20px; font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600;">
+        <a href="/admin" style="color: inherit; text-decoration: none;">DOSSIER <span style="color: var(--accent)">212</span></a>
+        <div class="admin-sidebar-label" style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; opacity: 0.5; margin-top: 5px;">ADMINISTRATION</div>
+      </div>
+      <nav class="admin-sidebar-nav" style="display: flex; flex-direction: column; gap: 10px; padding: 20px;">
+        <a href="/admin" class="admin-nav-link" style="color: var(--text-main); text-decoration: none;">Tableau de bord</a>
+        <a href="/admin/dossier/new" class="admin-nav-link" style="color: var(--text-main); text-decoration: none;">Nouveau dossier</a>
+        <a href="/admin/images" class="admin-nav-link" style="color: var(--accent); text-decoration: none;">Images</a>
+        <a href="/" class="admin-nav-link" target="_blank" style="color: var(--text-main); text-decoration: none; margin-top: 20px;">Voir le site</a>
+        <a href="/admin/logout" class="admin-nav-link admin-nav-link--danger" style="color: #ff4d4f; text-decoration: none;">Déconnexion</a>
+      </nav>
+    </aside>
+    <main class="admin-main" style="flex: 1; padding: 40px; overflow-y: auto;">
+      <header class="admin-header flex-between" style="margin-bottom: 40px;">
+        <h1>Gestion des images</h1>
+      </header>
+
+      <form action="/admin/images/upload" method="POST" enctype="multipart/form-data" class="admin-dropzone" style="margin-bottom: 40px; padding: 40px; border: 2px dashed var(--border-color); text-align: center; background: var(--bg-alt);">
+        <p style="margin-bottom: 20px; font-family: 'Inter', sans-serif;">Glissez et déposez des images ici ou cliquez pour sélectionner</p>
+        <input type="file" name="image" required style="margin-bottom: 20px;">
+        <button type="submit" style="padding: 10px 20px; background: var(--accent); color: var(--bg-main); border: none; font-weight: 600; cursor: pointer;">Uploader l'image</button>
+      </form>
+
+      <div class="admin-image-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
+        <% if (typeof images !== 'undefined' && images.length > 0) { %>
+          <% images.forEach(img => { %>
+            <div class="admin-card" style="border: 1px solid var(--border-color); padding: 10px; background: var(--bg-alt);">
+              <img src="/uploads/<%= img.filename %>" alt="" style="width: 100%; height: 200px; object-fit: cover; margin-bottom: 10px;">
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; word-break: break-all; margin-bottom: 5px;"><%= img.filename %></div>
+              <% if (img.dossier_id) { %>
+                <div style="font-size: 12px; margin-bottom: 10px; color: var(--text-muted);">Liée au dossier #<%= img.dossier_id %></div>
+              <% } %>
+              <div class="flex-between">
+                <button class="admin-btn" style="padding: 5px 10px; background: transparent; border: 1px solid var(--border-color); color: var(--text-main); font-size: 12px; cursor: pointer;" onclick="navigator.clipboard.writeText('/uploads/<%= img.filename %>')">Copier URL</button>
+                <form action="/admin/images/<%= img.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Supprimer cette image ?')">
+                  <button type="submit" style="padding: 5px 10px; background: transparent; border: 1px solid #ff4d4f; color: #ff4d4f; font-size: 12px; cursor: pointer;">Supprimer</button>
+                </form>
+              </div>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <p>Aucune image trouvée.</p>
+        <% } %>
+      </div>
+    </main>
+  </div>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

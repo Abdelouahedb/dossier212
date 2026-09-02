@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof dossier !== 'undefined' && dossier ? 'Modifier: ' + dossier.titre_fr : 'Nouveau dossier' %> — Admin DOSSIER 212</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 30px; overflow-x: auto; }
+    .tab-btn { background: none; border: none; border-bottom: 2px solid transparent; color: var(--text-muted); cursor: pointer; padding: 12px 20px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; transition: all 0.2s; }
+    .tab-btn:hover { color: var(--text-primary); }
+    .tab-btn.active { color: var(--text-primary); border-bottom-color: var(--accent); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group select,
+    .form-group textarea {
+      width: 100%; padding: 10px 12px; background: var(--bg-card); border: 1px solid var(--border);
+      color: var(--text-primary); font-family: 'Inter', sans-serif; font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none; border-color: var(--accent);
+    }
+    .form-group textarea { min-height: 150px; resize: vertical; font-family: 'IBM Plex Mono', monospace; font-size: 13px; line-height: 1.6; }
+    .form-group textarea.large { min-height: 400px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .checkbox-row { display: flex; gap: 24px; align-items: center; }
+    .checkbox-row label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; }
+    .btn-row { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; gap: 12px; align-items: center; }
+    .btn-primary { background: var(--accent); color: #fff; border: none; padding: 10px 24px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer; transition: background 0.2s; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-danger { background: transparent; color: #ff4d4f; border: 1px solid #ff4d4f; padding: 10px 24px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer; }
+    .btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); padding: 8px 16px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; cursor: pointer; }
+    .success-msg { background: rgba(35, 76, 35, 0.3); border: 1px solid #2d5a2d; color: #7f9f7f; padding: 12px 16px; margin-bottom: 24px; font-family: 'IBM Plex Mono', monospace; font-size: 13px; }
+    .upload-zone { border: 2px dashed var(--border); padding: 24px; text-align: center; margin-bottom: 20px; transition: border-color 0.2s; }
+    .upload-zone:hover { border-color: var(--accent); }
+    .img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
+    .img-card { border: 1px solid var(--border); padding: 8px; }
+    .img-card img { width: 100%; height: 140px; object-fit: cover; margin-bottom: 8px; }
+    .img-card .img-name { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text-muted); word-break: break-all; margin-bottom: 8px; }
+    .person-entry, .timeline-entry { background: var(--bg-card); border: 1px solid var(--border); padding: 16px; margin-bottom: 12px; }
+    .person-entry .entry-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .person-entry input, .person-entry select, .person-entry textarea,
+    .timeline-entry input, .timeline-entry textarea {
+      width: 100%; padding: 8px; background: var(--bg-primary); border: 1px solid var(--border); color: var(--text-primary); font-family: 'Inter', sans-serif; font-size: 13px;
+    }
+    .person-entry textarea, .timeline-entry textarea { min-height: 60px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; }
+    .entry-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .remove-btn { background: none; border: none; color: #ff4d4f; cursor: pointer; font-size: 12px; font-family: 'IBM Plex Mono', monospace; padding: 4px 8px; }
+    @media (max-width: 768px) {
+      .form-row { grid-template-columns: 1fr; }
+      .admin-sidebar { display: none; }
+      .admin-main { margin-left: 0 !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div style="padding: 20px; font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600;">
+        <a href="/admin" style="color: inherit; text-decoration: none;">DOSSIER <span style="color: var(--accent)">212</span></a>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; opacity: 0.5; margin-top: 5px;">ADMINISTRATION</div>
+      </div>
+      <nav style="display: flex; flex-direction: column; gap: 4px; padding: 0 12px;">
+        <a href="/admin" style="color: var(--text-secondary); text-decoration: none; padding: 8px 12px; font-size: 14px;">Tableau de bord</a>
+        <a href="/admin/dossier/new" style="color: var(--accent); text-decoration: none; padding: 8px 12px; font-size: 14px;">Nouveau dossier</a>
+        <a href="/" target="_blank" style="color: var(--text-secondary); text-decoration: none; padding: 8px 12px; font-size: 14px; margin-top: 16px;">Voir le site ↗</a>
+        <a href="/admin/logout" style="color: #ff4d4f; text-decoration: none; padding: 8px 12px; font-size: 14px;">Déconnexion</a>
+      </nav>
+    </aside>
+
+    <main class="admin-main" style="margin-left: 250px; padding: 40px; overflow-y: auto;">
+      <h1 style="margin-bottom: 24px;"><%= typeof dossier !== 'undefined' && dossier ? 'Modifier : ' + dossier.titre_fr : 'Nouveau dossier' %></h1>
+
+      <% if (typeof success !== 'undefined' && success) { %>
+        <div class="success-msg"><%= success %></div>
+      <% } %>
+
+      <!-- TABS -->
+      <div class="tabs" id="tabBar">
+        <button type="button" class="tab-btn active" data-tab="info">Informations</button>
+        <button type="button" class="tab-btn" data-tab="fr">Contenu FR</button>
+        <button type="button" class="tab-btn" data-tab="en">Contenu EN</button>
+        <button type="button" class="tab-btn" data-tab="personnes">Personnes</button>
+        <button type="button" class="tab-btn" data-tab="chrono">Chronologie</button>
+        <button type="button" class="tab-btn" data-tab="sources">Sources</button>
+        <% if (typeof dossier !== 'undefined' && dossier) { %>
+          <button type="button" class="tab-btn" data-tab="images">Images</button>
+        <% } %>
+      </div>
+
+      <!-- MAIN FORM -->
+      <form action="<%= typeof dossier !== 'undefined' && dossier ? '/admin/dossier/' + dossier.id + '/edit' : '/admin/dossier/new' %>" method="POST" id="dossierForm">
+
+        <!-- TAB: Informations -->
+        <div id="info" class="tab-panel active">
+          <div class="form-row">
+            <div class="form-group">
+              <label>TITRE (FR) *</label>
+              <input type="text" name="titre_fr" value="<%= typeof dossier !== 'undefined' && dossier ? dossier.titre_fr : '' %>" required>
+            </div>
+            <div class="form-group">
+              <label>TITRE (EN)</label>
+              <input type="text" name="titre_en" value="<%= typeof dossier !== 'undefined' && dossier ? dossier.titre_en : '' %>">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>LIEU</label>
+              <input type="text" name="lieu" placeholder="KHÉNIFRA, MAROC" value="<%= typeof dossier !== 'undefined' && dossier ? dossier.lieu : '' %>">
+            </div>
+            <div class="form-group">
+              <label>COORDONNÉES</label>
+              <input type="text" name="coordonnees" placeholder="32.9394° N, 5.6675° W" value="<%= typeof dossier !== 'undefined' && dossier ? dossier.coordonnees : '' %>">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>PÉRIODE</label>
+              <input type="text" name="periode" placeholder="1974 — 2026" value="<%= typeof dossier !== 'undefined' && dossier ? dossier.periode : '' %>">
+            </div>
+            <div class="form-group">
+              <label>TEMPS DE LECTURE (MIN)</label>
+              <input type="number" name="temps_lecture" value="<%= typeof dossier !== 'undefined' && dossier ? dossier.temps_lecture : 10 %>">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>CATÉGORIE</label>
+              <select name="categorie">
+                <% ['maroc', 'monde', 'disparitions', 'non-resolus', 'archives', 'justice'].forEach(c => { %>
+                  <option value="<%= c %>" <%= typeof dossier !== 'undefined' && dossier && dossier.categorie === c ? 'selected' : '' %>><%= c.toUpperCase() %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>STATUT</label>
+              <select name="statut">
+                <% [['enquete','Enquête'],['proces','Procès'],['condamne','Condamné'],['non_resolu','Non résolu'],['archive','Archive']].forEach(([val,label]) => { %>
+                  <option value="<%= val %>" <%= typeof dossier !== 'undefined' && dossier && dossier.statut === val ? 'selected' : '' %>><%= label %></option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>TAGS</label>
+            <input type="text" name="tags" placeholder="PÉDOCRIMINALITÉ · ENQUÊTE INTERNATIONALE" value="<%= typeof dossier !== 'undefined' && dossier ? dossier.tags : '' %>">
+          </div>
+          <div class="checkbox-row">
+            <label><input type="checkbox" name="est_publie" value="1" <%= typeof dossier !== 'undefined' && dossier && dossier.est_publie ? 'checked' : '' %>> PUBLIÉ</label>
+            <label><input type="checkbox" name="est_a_la_une" value="1" <%= typeof dossier !== 'undefined' && dossier && dossier.est_a_la_une ? 'checked' : '' %>> À LA UNE</label>
+          </div>
+        </div>
+
+        <!-- TAB: Contenu FR -->
+        <div id="fr" class="tab-panel">
+          <div class="form-group">
+            <label>INTRODUCTION (FR)</label>
+            <textarea name="introduction_fr"><%= typeof dossier !== 'undefined' && dossier ? dossier.introduction_fr : '' %></textarea>
+          </div>
+          <div class="form-group">
+            <label>CONTENU (FR) — Markdown</label>
+            <textarea name="contenu_fr" class="large"><%= typeof dossier !== 'undefined' && dossier ? dossier.contenu_fr : '' %></textarea>
+          </div>
+        </div>
+
+        <!-- TAB: Contenu EN -->
+        <div id="en" class="tab-panel">
+          <div class="form-group">
+            <label>INTRODUCTION (EN)</label>
+            <textarea name="introduction_en"><%= typeof dossier !== 'undefined' && dossier ? dossier.introduction_en : '' %></textarea>
+          </div>
+          <div class="form-group">
+            <label>CONTENU (EN) — Markdown</label>
+            <textarea name="contenu_en" class="large"><%= typeof dossier !== 'undefined' && dossier ? dossier.contenu_en : '' %></textarea>
+          </div>
+        </div>
+
+        <!-- TAB: Personnes -->
+        <div id="personnes" class="tab-panel">
+          <div id="personnes-list"></div>
+          <input type="hidden" name="personnes" id="personnes-json" value='<%= typeof personnes !== "undefined" ? JSON.stringify(personnes) : "[]" %>'>
+          <button type="button" id="btn-add-personne" class="btn-secondary" style="margin-top: 12px;">+ Ajouter une personne</button>
+        </div>
+
+        <!-- TAB: Chronologie -->
+        <div id="chrono" class="tab-panel">
+          <div id="timeline-list"></div>
+          <input type="hidden" name="chronologie" id="timeline-json" value='<%= typeof chronologie !== "undefined" ? JSON.stringify(chronologie) : "[]" %>'>
+          <button type="button" id="btn-add-timeline" class="btn-secondary" style="margin-top: 12px;">+ Ajouter un événement</button>
+        </div>
+
+        <!-- TAB: Sources -->
+        <div id="sources" class="tab-panel">
+          <div class="form-group">
+            <label>SOURCES (MARKDOWN)</label>
+            <textarea name="sources" class="large"><%= typeof dossier !== 'undefined' && dossier ? dossier.sources : '' %></textarea>
+          </div>
+        </div>
+
+        <!-- SAVE / DELETE -->
+        <div class="btn-row">
+          <button type="submit" class="btn-primary">Enregistrer</button>
+          <% if (typeof dossier !== 'undefined' && dossier) { %>
+            <span style="flex:1;"></span>
+            <button type="button" class="btn-danger" id="btn-delete" data-url="/admin/dossier/<%= dossier.id %>/delete">Supprimer le dossier</button>
+          <% } %>
+        </div>
+      </form>
+
+      <!-- TAB: Images (separate form for multipart upload) -->
+      <% if (typeof dossier !== 'undefined' && dossier) { %>
+        <div id="images" class="tab-panel" style="margin-top: 30px;">
+          <h2 style="margin-bottom: 20px;">Images du dossier</h2>
+          
+          <div style="background: var(--bg-secondary); padding: 15px; margin-bottom: 20px; font-size: 13px; border-left: 3px solid var(--accent);">
+            <strong>Comment utiliser les images :</strong><br>
+            1. La <strong>première image</strong> que vous uploadez devient automatiquement l'image principale (affichée sous le titre de l'article).<br>
+            2. Pour insérer d'autres images n'importe où dans le texte de l'article, copiez le code Markdown (ex: <code>![Description](/uploads/nom.png)</code>) et collez-le dans l'onglet "Général" (Contenu).
+          </div>
+
+          <form action="/admin/dossier/<%= dossier.id %>/upload" method="POST" enctype="multipart/form-data">
+            <div class="upload-zone">
+              <p style="margin:0; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 12px;">Sélectionner ou glisser des images ici</p>
+              <input type="file" name="images" multiple accept="image/*" style="margin-top: 12px;">
+            </div>
+            <button type="submit" class="btn-secondary">Uploader les images</button>
+          </form>
+
+          <div class="img-grid" style="margin-top: 24px; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+            <% if (typeof images !== 'undefined' && images.length > 0) { %>
+              <% images.forEach((img, index) => { %>
+                <div class="img-card" style="border: 1px solid var(--border); padding: 10px; background: var(--bg-card);">
+                  <% if (index === 0) { %>
+                    <div style="font-size:10px; color:var(--accent); font-weight:bold; margin-bottom:5px;">⭐ IMAGE PRINCIPALE</div>
+                  <% } %>
+                  <img src="<%= img.chemin %>" alt="" style="width: 100%; height: 120px; object-fit: cover; margin-bottom: 10px;">
+                  <div class="img-name" style="font-size: 11px; word-break: break-all; margin-bottom: 10px; font-family: monospace; color: var(--text-muted);"><%= img.chemin %></div>
+                  
+                  <div style="margin-bottom: 10px;">
+                    <input type="text" readonly value="![Image](<%= img.chemin %>)" style="width: 100%; font-size: 10px; padding: 4px; background: #111; color: #fff; border: 1px solid #333;" onclick="this.select(); document.execCommand('copy'); alert('Code copié ! Collez-le dans le contenu de votre article.')" title="Cliquez pour copier">
+                    <div style="font-size: 9px; color: var(--text-muted); text-align: center; margin-top: 3px;">↑ Cliquez pour copier le code</div>
+                  </div>
+
+                  <form action="/admin/image/<%= img.id %>/delete" method="POST" style="display:inline;">
+                    <button type="submit" class="btn-danger" style="width: 100%; padding: 5px;" onclick="return confirm('Supprimer cette image ?')">Supprimer</button>
+                  </form>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <p style="color: var(--text-muted);">Aucune image uploadée.</p>
+            <% } %>
+          </div>
+        </div>
+      <% } %>
+
+    </main>
+  </div>
+
+  <script>
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Deactivate all
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        // Activate target
+        btn.classList.add('active');
+        const panel = document.getElementById(btn.dataset.tab);
+        if (panel) panel.classList.add('active');
+      });
+    });
+
+    // Delete dossier
+    const deleteBtn = document.getElementById('btn-delete');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', () => {
+        if (confirm('Êtes-vous sûr de vouloir supprimer ce dossier ? Cette action est irréversible.')) {
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = deleteBtn.dataset.url;
+          document.body.appendChild(form);
+          form.submit();
+        }
+      });
+    }
+
+    // ===== PERSONNES MANAGER =====
+    (function() {
+      const container = document.getElementById('personnes-list');
+      const hiddenInput = document.getElementById('personnes-json');
+      const addBtn = document.getElementById('btn-add-personne');
+      if (!container || !hiddenInput || !addBtn) return;
+
+      let persons = [];
+      try { persons = JSON.parse(hiddenInput.value || '[]'); } catch(e) { persons = []; }
+
+      function render() {
+        container.innerHTML = '';
+        persons.forEach((p, i) => {
+          const div = document.createElement('div');
+          div.className = 'person-entry';
+          div.innerHTML = `
+            <div class="entry-grid">
+              <div><div class="entry-label">NOM</div><input type="text" value="${(p.nom||'').replace(/"/g,'&quot;')}" data-i="${i}" data-f="nom" class="pe"></div>
+              <div><div class="entry-label">RÔLE</div>
+                <select data-i="${i}" data-f="role" class="pe">
+                  <option value="victime" ${p.role==='victime'?'selected':''}>Victime</option>
+                  <option value="suspect" ${p.role==='suspect'?'selected':''}>Suspect</option>
+                  <option value="temoin" ${p.role==='temoin'?'selected':''}>Témoin</option>
+                  <option value="enqueteur" ${p.role==='enqueteur'?'selected':''}>Enquêteur</option>
+                  <option value="magistrat" ${p.role==='magistrat'?'selected':''}>Magistrat</option>
+                  <option value="autre" ${p.role==='autre'?'selected':''}>Autre</option>
+                </select>
+              </div>
+              <div><div class="entry-label">STATUT JUDICIAIRE</div>
+                <select data-i="${i}" data-f="statut_judiciaire" class="pe">
+                  <option value="">—</option>
+                  <option value="soupconne" ${p.statut_judiciaire==='soupconne'?'selected':''}>Soupçonné</option>
+                  <option value="mis_en_examen" ${p.statut_judiciaire==='mis_en_examen'?'selected':''}>Mis en examen</option>
+                  <option value="accuse" ${p.statut_judiciaire==='accuse'?'selected':''}>Accusé</option>
+                  <option value="condamne" ${p.statut_judiciaire==='condamne'?'selected':''}>Condamné</option>
+                  <option value="acquitte" ${p.statut_judiciaire==='acquitte'?'selected':''}>Acquitté</option>
+                </select>
+              </div>
+              <div><div class="entry-label">DESCRIPTION (FR)</div><textarea data-i="${i}" data-f="description_fr" class="pe">${p.description_fr||''}</textarea></div>
+            </div>
+            <button type="button" class="remove-btn" data-i="${i}">✕ Supprimer cette personne</button>
+          `;
+          container.appendChild(div);
+        });
+        // Bind events
+        container.querySelectorAll('.pe').forEach(el => {
+          el.addEventListener('input', e => {
+            persons[+e.target.dataset.i][e.target.dataset.f] = e.target.value;
+            hiddenInput.value = JSON.stringify(persons);
+          });
+          el.addEventListener('change', e => {
+            persons[+e.target.dataset.i][e.target.dataset.f] = e.target.value;
+            hiddenInput.value = JSON.stringify(persons);
+          });
+        });
+        container.querySelectorAll('.remove-btn').forEach(btn => {
+          btn.addEventListener('click', e => {
+            persons.splice(+e.target.dataset.i, 1);
+            hiddenInput.value = JSON.stringify(persons);
+            render();
+          });
+        });
+      }
+
+      addBtn.addEventListener('click', () => {
+        persons.push({ nom:'', role:'temoin', statut_judiciaire:'', description_fr:'' });
+        hiddenInput.value = JSON.stringify(persons);
+        render();
+      });
+      render();
+    })();
+
+    // ===== CHRONOLOGIE MANAGER =====
+    (function() {
+      const container = document.getElementById('timeline-list');
+      const hiddenInput = document.getElementById('timeline-json');
+      const addBtn = document.getElementById('btn-add-timeline');
+      if (!container || !hiddenInput || !addBtn) return;
+
+      let events = [];
+      try { events = JSON.parse(hiddenInput.value || '[]'); } catch(e) { events = []; }
+
+      function render() {
+        container.innerHTML = '';
+        events.forEach((ev, i) => {
+          const div = document.createElement('div');
+          div.className = 'timeline-entry';
+          div.innerHTML = `
+            <div style="display:grid; grid-template-columns: 200px 60px 1fr auto; gap: 12px; align-items: start;">
+              <div><div class="entry-label">DATE</div><input type="text" value="${(ev.date_evenement||'').replace(/"/g,'&quot;')}" data-i="${i}" data-f="date_evenement" class="te" placeholder="12 OCT. 2023"></div>
+              <div><div class="entry-label">ORDRE</div><input type="number" value="${ev.ordre ?? i}" data-i="${i}" data-f="ordre" class="te"></div>
+              <div><div class="entry-label">DESCRIPTION (FR)</div><textarea data-i="${i}" data-f="description_fr" class="te">${ev.description_fr||''}</textarea></div>
+              <button type="button" class="remove-btn" data-i="${i}" style="margin-top:16px;">✕</button>
+            </div>
+          `;
+          container.appendChild(div);
+        });
+        container.querySelectorAll('.te').forEach(el => {
+          el.addEventListener('input', e => {
+            const val = e.target.dataset.f === 'ordre' ? +e.target.value : e.target.value;
+            events[+e.target.dataset.i][e.target.dataset.f] = val;
+            hiddenInput.value = JSON.stringify(events);
+          });
+        });
+        container.querySelectorAll('.remove-btn').forEach(btn => {
+          btn.addEventListener('click', e => {
+            events.splice(+e.target.dataset.i, 1);
+            hiddenInput.value = JSON.stringify(events);
+            render();
+          });
+        });
+      }
+
+      addBtn.addEventListener('click', () => {
+        events.push({ date_evenement:'', description_fr:'', ordre: events.length });
+        hiddenInput.value = JSON.stringify(events);
+        render();
+      });
+      render();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<% const t = (typeof lang !== 'undefined' && lang === 'en') ? {
+  signature: 'Crimes. Disappearances. Investigations.',
+  description: 'We document the criminal cases that have shaped Morocco and the world.',
+  featuredDossier: 'FEATURED DOSSIER',
+  readDossier: 'Read the dossier',
+  latestDossiers: 'LATEST DOSSIERS',
+  morocco: 'MOROCCO',
+  world: 'WORLD',
+  unsolved: 'UNSOLVED CASES',
+  archives: 'ARCHIVES',
+  viewAll: 'View all',
+  minRead: 'min read'
+} : {
+  signature: 'Crimes. Disparitions. Enquêtes.',
+  description: 'Nous documentons les affaires criminelles qui ont marqué le Maroc et le monde.',
+  featuredDossier: 'DOSSIER À LA UNE',
+  readDossier: 'Lire le dossier',
+  latestDossiers: 'DERNIERS DOSSIERS',
+  morocco: 'MAROC',
+  world: 'MONDE',
+  unsolved: 'AFFAIRES NON RÉSOLUES',
+  archives: 'ARCHIVES',
+  viewAll: 'Voir tout',
+  minRead: 'min de lecture'
+}; %>
+<!DOCTYPE html>
+<html lang="<%= typeof lang !== 'undefined' ? lang : 'en' %>" data-theme="<%= typeof theme !== 'undefined' ? theme : 'dark' %>">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof pageTitle !== 'undefined' ? pageTitle + ' — DOSSIER 212' : 'DOSSIER 212 — ' + t.signature %></title>
+  <meta name="description" content="<%= t.description %>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/header') %>
+  
+  <main>
+    <section class="hero section fade-in">
+      <div class="container">
+        <span class="hero-badge">ARCHIVES JUDICIAIRES</span>
+        <h1 class="hero-title">DOSSIER 212</h1>
+        <p class="hero-signature"><%= t.signature %></p>
+        <p class="hero-description"><%= t.description %></p>
+      </div>
+    </section>
+
+    <% if (typeof featured !== 'undefined' && featured) { %>
+    <section class="featured section fade-in">
+      <div class="container">
+        <h2 class="section-title"><%= t.featuredDossier %></h2>
+        <div class="featured-card">
+          <% if (featured.image_principale) { %>
+            <div class="featured-img-wrap">
+              <img src="/uploads/<%= featured.image_principale %>" alt="Featured Image">
+            </div>
+          <% } %>
+          <div class="featured-content">
+            <span class="featured-badge">DOSSIER <%= String(featured.numero).padStart(3, '0') %></span>
+            <h3 class="featured-title"><%= (typeof lang !== 'undefined' && lang === 'en' && featured.titre_en) ? featured.titre_en : featured.titre_fr %></h3>
+            <p class="featured-summary"><%= (typeof lang !== 'undefined' && lang === 'en' && featured.introduction_en) ? featured.introduction_en.substring(0, 200) + '...' : featured.introduction_fr.substring(0, 200) + '...' %></p>
+            <a href="/dossier/<%= featured.slug %>" class="featured-cta"><%= t.readDossier %> →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+    <% } %>
+
+    <% if (typeof latest !== 'undefined' && latest && latest.length > 0) { %>
+    <section class="section fade-in">
+      <div class="container">
+        <h2 class="section-title"><%= t.latestDossiers %></h2>
+        <div class="grid-3">
+          <% latest.forEach(dossier => { %>
+            <%- include('../partials/dossier-card', { dossier, lang: typeof lang !== 'undefined' ? lang : 'en' }) %>
+          <% }) %>
+        </div>
+      </div>
+    </section>
+    <% } %>
+
+    <% if (typeof categories !== 'undefined') { %>
+      <% const catMap = [
+        { key: 'maroc', title: t.morocco, link: '/categorie/maroc' },
+        { key: 'monde', title: t.world, link: '/categorie/monde' },
+        { key: 'non_resolus', title: t.unsolved, link: '/categorie/non-resolus' },
+        { key: 'archives', title: t.archives, link: '/categorie/archives' }
+      ]; %>
+      
+      <% catMap.forEach(cat => { %>
+        <% if (categories[cat.key] && categories[cat.key].length > 0) { %>
+        <section class="section fade-in">
+          <div class="container">
+            <div class="flex-between">
+              <h2 class="section-title"><%= cat.title %></h2>
+              <a href="<%= cat.link %>" class="nav-link"><%= t.viewAll %> →</a>
+            </div>
+            <div class="grid-2">
+              <% categories[cat.key].slice(0, 2).forEach(dossier => { %>
+                <%- include('../partials/dossier-card', { dossier, lang: typeof lang !== 'undefined' ? lang : 'en' }) %>
+              <% }) %>
+            </div>
+          </div>
+        </section>
+        <% } %>
+      <% }) %>
+    <% } %>
+  </main>
+  
+  <%- include('../partials/footer') %>
+  <script src="/js/main.js"></script>
+</body>
+</html>

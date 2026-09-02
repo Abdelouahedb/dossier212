@@ -1,0 +1,7 @@
+ node_modules/
+.env
+database/dossier212.db
+public/uploads/*
+!public/uploads/.gitkeep
+.DS_Store
+
