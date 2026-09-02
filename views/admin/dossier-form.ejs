@@ -330,7 +330,7 @@
                   <option value="acquitte" ${p.statut_judiciaire==='acquitte'?'selected':''}>Acquitté</option>
                 </select>
               </div>
-              <div><div class="entry-label">DESCRIPTION \(FR\)</div><textarea data-i="\$\{i\}" data-f="description_fr" class="pe">\$\{p.description_fr\|\|\'\'\}</textarea></div>
+              <div><div class="entry-label">DESCRIPTION \(FR\)</div><textarea data-i="${i}" data-f="description_fr" class="pe">${p.description_fr||''}</textarea></div>
               <div><div class="entry-label">DESCRIPTION (EN)</div><textarea data-i="${i}" data-f="description_en" class="pe">${p.description_en||""}</textarea></div>
             </div>
             <button type="button" class="remove-btn" data-i="${i}">✕ Supprimer cette personne</button>
@@ -384,7 +384,7 @@
             <div style="display:grid; grid-template-columns: 200px 60px 1fr auto; gap: 12px; align-items: start;">
               <div><div class="entry-label">DATE</div><input type="text" value="${(ev.date_evenement||'').replace(/"/g,'&quot;')}" data-i="${i}" data-f="date_evenement" class="te" placeholder="12 OCT. 2023"></div>
               <div><div class="entry-label">ORDRE</div><input type="number" value="${ev.ordre ?? i}" data-i="${i}" data-f="ordre" class="te"></div>
-              <div><div class="entry-label">DESCRIPTION \(FR\)</div><textarea data-i="\$\{i\}" data-f="description_fr" class="te">\$\{ev.description_fr\|\|\'\'\}</textarea></div>
+              <div><div class="entry-label">DESCRIPTION \(FR\)</div><textarea data-i="${i}" data-f="description_fr" class="te">${ev.description_fr||''}</textarea></div>
               <div><div class="entry-label">DESCRIPTION (EN)</div><textarea data-i="${i}" data-f="description_en" class="te">${ev.description_en||""}</textarea></div>
               <button type="button" class="remove-btn" data-i="${i}" style="margin-top:16px;">✕</button>
             </div>
