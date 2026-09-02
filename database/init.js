@@ -28,6 +28,7 @@ async function getDb() {
       tags TEXT,
       statut TEXT,
       temps_lecture INTEGER,
+      image_principale TEXT DEFAULT '',
       est_publie INTEGER DEFAULT 0,
       est_a_la_une INTEGER DEFAULT 0,
       introduction_fr TEXT,
@@ -63,8 +64,16 @@ async function getDb() {
       dossier_id INTEGER REFERENCES dossiers(id) ON DELETE CASCADE,
       chemin TEXT NOT NULL,
       legende TEXT,
-      ordre INTEGER DEFAULT 0
+      ordre INTEGER DEFAULT 0,
+      cloudinary_public_id TEXT,
+      date_upload TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
+
+    ALTER TABLE dossiers ADD COLUMN IF NOT EXISTS image_principale TEXT DEFAULT '';
+    ALTER TABLE images ADD COLUMN IF NOT EXISTS legende TEXT;
+    ALTER TABLE images ADD COLUMN IF NOT EXISTS ordre INTEGER DEFAULT 0;
+    ALTER TABLE images ADD COLUMN IF NOT EXISTS cloudinary_public_id TEXT;
+    ALTER TABLE images ADD COLUMN IF NOT EXISTS date_upload TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
   `;
   
   await pool.query(createTablesSql);

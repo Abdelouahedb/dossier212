@@ -52,7 +52,7 @@ To avoid rewriting hundreds of lines of routing logic, **custom wrappers** were 
 *   **dossiers**: The core case files. Contains metadata, markdown content, read time, and boolean flags (est_publie, est_a_la_une).
 *   **personnes**: Profiles of people involved in a case (Victims, Suspects, Investigators). Links to dossiers(id).
 *   **chronologie**: Timeline events forming the timeline sequence. Links to dossiers(id).
-*   **images**: Stores the Cloudinary URLs of uploaded evidence/photos. Links to dossiers(id).
+*   **images**: Stores the Cloudinary delivery URL and public ID for uploaded evidence/photos. Images can optionally link to a dossier.
 
 ---
 

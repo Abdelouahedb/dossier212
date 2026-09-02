@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS images (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   dossier_id INTEGER,
   chemin TEXT NOT NULL,
+  cloudinary_public_id TEXT DEFAULT '',
   legende_fr TEXT DEFAULT '',
   legende_en TEXT DEFAULT '',
   credit TEXT DEFAULT '',

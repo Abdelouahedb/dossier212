@@ -53,9 +53,9 @@
       <div class="container">
         <h2 class="section-title"><%= t.featuredDossier %></h2>
         <div class="featured-card">
-          <% if (featured.image_principale) { %>
+          <% if (featured.cover_image) { %>
             <div class="featured-img-wrap">
-              <img src="/uploads/<%= featured.image_principale %>" alt="Featured Image">
+              <img src="<%= featured.cover_image %>" alt="Featured Image">
             </div>
           <% } %>
           <div class="featured-content">
@@ -86,7 +86,7 @@
       <% const catMap = [
         { key: 'maroc', title: t.morocco, link: '/categorie/maroc' },
         { key: 'monde', title: t.world, link: '/categorie/monde' },
-        { key: 'non_resolus', title: t.unsolved, link: '/categorie/non-resolus' },
+        { key: 'non-resolus', title: t.unsolved, link: '/categorie/non-resolus' },
         { key: 'archives', title: t.archives, link: '/categorie/archives' }
       ]; %>
       

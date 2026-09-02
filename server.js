@@ -7,6 +7,22 @@ const cookieParser = require('cookie-parser');
 const { getDb } = require('./database/init'); // Initialize database
 
 const app = express();
+const requiredEnvVars = [
+  'DATABASE_URL',
+  'CLOUDINARY_CLOUD_NAME',
+  'CLOUDINARY_API_KEY',
+  'CLOUDINARY_API_SECRET',
+  'SESSION_SECRET',
+  'ADMIN_USERNAME',
+  'ADMIN_PASSWORD'
+];
+
+function validateConfiguration() {
+  const missing = requiredEnvVars.filter((name) => !process.env[name]);
+  if (missing.length > 0) {
+    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+  }
+}
 
 // View engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -20,7 +36,7 @@ app.use(helmet({
       scriptSrc: ["'self'", "'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "blob:"],
+      imgSrc: ["'self'", "data:", "blob:", "https://res.cloudinary.com"],
       formAction: ["'self'"],
       connectSrc: ["'self'"]
     }
@@ -43,10 +59,11 @@ const cookieSession = require('cookie-session');
 app.set('trust proxy', 1); // Trust Vercel's proxy so secure cookies work
 app.use(cookieSession({
   name: 'session',
-  secret: process.env.SESSION_SECRET || 'dossier-secret-212',
+  secret: process.env.SESSION_SECRET,
   maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
   secure: process.env.NODE_ENV === 'production',
-  httpOnly: true
+  httpOnly: true,
+  sameSite: 'lax'
 }));
 
 // Global variables for templates
@@ -72,9 +89,13 @@ app.use((req, res, next) => {
 const PORT = process.env.PORT || 3000;
 
 async function start() {
+  validateConfiguration();
   await getDb();
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
 }
-start();
+start().catch((error) => {
+  console.error('Unable to start server:', error.message);
+  process.exit(1);
+});

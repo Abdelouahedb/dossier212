@@ -4,8 +4,6 @@ const { getDb, saveDb } = require('../database/init');
 const { requireAuth, attemptLogin } = require('../middleware/auth');
 const slugify = require('slugify');
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 
 // Helper to fetch multiple rows
 async function fetchAll(db, sql, params = []) {
@@ -44,6 +42,23 @@ const storage = new CloudinaryStorage({
 });
 
 const upload = multer({ storage: storage });
+
+async function query(db, sql, params = []) {
+  let pgSql = sql;
+  let i = 1;
+  while (pgSql.includes('?')) { pgSql = pgSql.replace('?', '$' + i); i++; }
+  return db.query(pgSql, params);
+}
+
+async function deleteCloudinaryImage(publicId) {
+  if (!publicId) return;
+  try {
+    await cloudinary.uploader.destroy(publicId, { invalidate: true });
+  } catch (error) {
+    // Do not leave database records behind when a remote cleanup fails.
+    console.error(`Unable to delete Cloudinary image ${publicId}:`, error.message);
+  }
+}
 
 // Filter handled by cloudinary config natively, or we can just ignore it here since allowed_formats is set
 
@@ -87,6 +102,19 @@ router.get('/images', async (req, res) => {
   const db = await getDb();
   const images = await fetchAll(db, "SELECT images.*, dossiers.titre_fr, dossiers.numero FROM images LEFT JOIN dossiers ON images.dossier_id = dossiers.id ORDER BY images.date_upload DESC");
   res.render('admin/images', { images });
+});
+
+router.post('/images/upload', upload.single('image'), async (req, res) => {
+  if (!req.file) return res.status(400).send('Aucune image fournie.');
+
+  try {
+    const db = await getDb();
+    await query(db, 'INSERT INTO images (chemin, cloudinary_public_id) VALUES (?, ?)', [req.file.path, req.file.filename]);
+    res.redirect('/admin/images');
+  } catch (error) {
+    console.error('Unable to save uploaded image:', error);
+    res.status(500).send("Erreur lors de l'enregistrement de l'image.");
+  }
 });
 
 router.get('/dossier/new', (req, res) => {
@@ -288,13 +316,9 @@ router.post('/dossier/:id/edit', async (req, res) => {
 router.post('/dossier/:id/delete', async (req, res) => {
   const db = await getDb();
   const id = req.params.id;
-  const images = await fetchAll(db, "SELECT chemin FROM images WHERE dossier_id = ?", [id]);
+  const images = await fetchAll(db, "SELECT cloudinary_public_id FROM images WHERE dossier_id = ?", [id]);
   
-  // Delete files
-  images.forEach(img => {
-    const filePath = path.join(__dirname, '../public', img.chemin);
-    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-  });
+  await Promise.all(images.map((image) => deleteCloudinaryImage(image.cloudinary_public_id)));
   
   await (async (sql, params = []) => {
       let pgSql = sql;
@@ -309,16 +333,10 @@ router.post('/dossier/:id/delete', async (req, res) => {
 router.post('/dossier/:id/upload', upload.array('images'), async (req, res) => {
   const db = await getDb();
   const id = req.params.id;
-  if (req.files) {
-    req.files.forEach(file => {
-      await (async (sql, params = []) => {
-      let pgSql = sql;
-      let i = 1;
-      while (pgSql.includes('?')) { pgSql = pgSql.replace('?', '$' + i); i++; }
-      return db.query(pgSql, params);
-    })("INSERT INTO images (dossier_id, chemin) VALUES (?, ?)", [id, '/uploads/' + file.filename]);
-    });
-    // saveDb();
+  if (req.files && req.files.length > 0) {
+    await Promise.all(req.files.map((file) =>
+      query(db, 'INSERT INTO images (dossier_id, chemin, cloudinary_public_id) VALUES (?, ?, ?)', [id, file.path, file.filename])
+    ));
   }
   res.redirect(`/admin/dossier/${id}/edit`);
 });
@@ -326,11 +344,10 @@ router.post('/dossier/:id/upload', upload.array('images'), async (req, res) => {
 router.post('/image/:id/delete', async (req, res) => {
   const db = await getDb();
   const id = req.params.id;
-  const image = fetchOne(db, "SELECT * FROM images WHERE id = ?", [id]);
+  const image = await fetchOne(db, "SELECT * FROM images WHERE id = ?", [id]);
   
   if (image) {
-    const filePath = path.join(__dirname, '../public', image.chemin);
-    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    await deleteCloudinaryImage(image.cloudinary_public_id);
     await (async (sql, params = []) => {
       let pgSql = sql;
       let i = 1;
