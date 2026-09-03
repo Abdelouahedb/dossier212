@@ -189,20 +189,37 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
  */
 function initDeclassifiedScramble() {
   const elements = document.querySelectorAll('.scramble-text');
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*!<>{}[]";
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*";
   
   elements.forEach(el => {
-    const originalText = el.innerText;
-    // Keep exact dimensions so the layout doesn't jump
-    el.style.minWidth = el.offsetWidth + 'px';
+    const originalText = el.innerText.trim();
+    
+    // Make parent relative to hold the absolute overlay
+    el.style.position = 'relative';
+    
+    // Create an invisible clone of the text to force the exact perfect height/width (prevents mobile jumping)
+    const hiddenSpan = document.createElement('span');
+    hiddenSpan.style.opacity = '0';
+    hiddenSpan.innerText = originalText;
+    
+    // Create the scrambling overlay
+    const overlaySpan = document.createElement('span');
+    overlaySpan.style.position = 'absolute';
+    overlaySpan.style.top = '0';
+    overlaySpan.style.left = '0';
+    overlaySpan.style.width = '100%';
+    overlaySpan.style.height = '100%';
+    overlaySpan.style.display = 'inline-block';
+    
+    el.innerHTML = '';
+    el.appendChild(hiddenSpan);
+    el.appendChild(overlaySpan);
     
     let iterations = 0;
     
     const interval = setInterval(() => {
-      el.innerText = originalText.split("").map((letter, index) => {
-        // Don't scramble spaces
+      overlaySpan.innerText = originalText.split("").map((letter, index) => {
         if (letter === ' ') return ' ';
-        
         if (index < iterations) {
           return originalText[index];
         }
@@ -211,11 +228,11 @@ function initDeclassifiedScramble() {
       
       if (iterations >= originalText.length) {
         clearInterval(interval);
-        el.style.minWidth = 'auto'; // release width constraint
+        el.innerHTML = originalText; // Restore original HTML cleanly
       }
       
-      // Control speed: smaller increment = longer scramble
-      iterations += 1/4; // Slowed down from 1/2
-    }, 45); // Slower flicker rate
+      // Speed control: higher is much faster
+      iterations += 1.5; 
+    }, 20); // 20ms = blazing fast framerate
   });
 }
