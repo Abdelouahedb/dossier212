@@ -215,7 +215,7 @@ function initDeclassifiedScramble() {
       }
       
       // Control speed: smaller increment = longer scramble
-      iterations += 1/2; 
-    }, 30);
+      iterations += 1/4; // Slowed down from 1/2
+    }, 45); // Slower flicker rate
   });
 }
