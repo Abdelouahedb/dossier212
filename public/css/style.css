@@ -1360,6 +1360,7 @@ blockquote {
 /* LOGIN PAGE */
 .login-page {
   min-height: 100vh;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1372,6 +1373,7 @@ blockquote {
   padding: 3rem;
   width: 100%;
   max-width: 400px;
+  margin: 0 auto;
 }
 
 .login-logo {
