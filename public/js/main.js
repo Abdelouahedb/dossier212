@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initThemeToggle();
   initLanguageToggle();
   initScrollAnimations();
+  initDeclassifiedScramble();
   initStickyHeader();
   initReadingProgress();
 });
@@ -181,3 +182,40 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         }
     });
 });
+
+
+/**
+ * Declassified Scramble Effect
+ */
+function initDeclassifiedScramble() {
+  const elements = document.querySelectorAll('.scramble-text');
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*!<>{}[]";
+  
+  elements.forEach(el => {
+    const originalText = el.innerText;
+    // Keep exact dimensions so the layout doesn't jump
+    el.style.minWidth = el.offsetWidth + 'px';
+    
+    let iterations = 0;
+    
+    const interval = setInterval(() => {
+      el.innerText = originalText.split("").map((letter, index) => {
+        // Don't scramble spaces
+        if (letter === ' ') return ' ';
+        
+        if (index < iterations) {
+          return originalText[index];
+        }
+        return characters[Math.floor(Math.random() * characters.length)];
+      }).join("");
+      
+      if (iterations >= originalText.length) {
+        clearInterval(interval);
+        el.style.minWidth = 'auto'; // release width constraint
+      }
+      
+      // Control speed: smaller increment = longer scramble
+      iterations += 1/2; 
+    }, 30);
+  });
+}

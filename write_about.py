@@ -1,0 +1,59 @@
+import os
+
+html = """<% const currentLang = typeof lang !== 'undefined' ? lang : 'en'; %>
+<!DOCTYPE html>
+<html lang="<%= currentLang %>" data-theme="<%= typeof theme !== 'undefined' ? theme : 'dark' %>">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= currentLang === 'en' ? 'About' : 'À propos' %> — DOSSIER 212</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <meta name="google-site-verification" content="E8tvFUa2YQBYwu2Trgiu-jedEg74NwyrQ90tKcfiwyE" />
+</head>
+<body>
+  <%- include('../partials/header') %>
+  
+  <main class="section fade-in">
+    <div class="container content-width">
+      <h1 class="section-title"><%= currentLang === 'en' ? 'ABOUT' : 'À PROPOS' %></h1>
+      
+      <blockquote style="font-family: 'Cormorant Garamond', serif; font-size: 24px; font-style: italic; border-left: 2px solid var(--accent); padding-left: 20px; margin: 40px 0;">
+        "Derrière chaque affaire se trouvent des faits, des lieux, des témoignages et des vies..."
+      </blockquote>
+
+      <div class="content-body" style="font-family: 'Inter', sans-serif; line-height: 1.8; font-size: 1.1rem;">
+        <% if (currentLang === 'en') { %>
+          <p>Welcome to <strong>DOSSIER 212</strong>.</p>
+          <p>This website is made by me, <a href="https://github.com/Abdelouahedb" target="_blank" rel="noopener noreferrer" class="github-link" style="display: inline-flex; align-items: baseline; gap: 0.3rem;"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="transform: translateY(2px);"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>EYBIWON</a>. I have a deep passion for crime stories, mysteries, and investigations. For a long time, I kept these stories to myself or only talked about them with my friends.</p>
+          <p>I built DOSSIER 212 because I wanted a dedicated space to share the most fascinating, chilling, and complex cases that I discover and research. Instead of just telling my friends, I decided it was time to tell all of you.</p>
+          <p>Here, you'll find a curated archive of cases, disappearances, and unsolved mysteries from Morocco and around the world, meticulously documented for fellow true crime enthusiasts.</p>
+          
+          <h3 style="margin-top: 2rem; font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">Submit a Case / Anonymous Tips</h3>
+          <p>Do you have information on a case? Is there a specific story or disappearance you want us to investigate? Reach out to us. We treat all submissions with the utmost confidentiality. <strong>Protecting your identity and ensuring your anonymity is our absolute priority.</strong></p>
+          <p>Send us a direct message on Instagram: <a href="https://instagram.com/dossier.212" target="_blank" style="color: var(--accent); font-weight: bold;">@dossier.212</a></p>
+        <% } else { %>
+          <p>Bienvenue sur <strong>DOSSIER 212</strong>.</p>
+          <p>Ce site est fait par moi, <a href="https://github.com/Abdelouahedb" target="_blank" rel="noopener noreferrer" class="github-link" style="display: inline-flex; align-items: baseline; gap: 0.3rem;"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="transform: translateY(2px);"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>EYBIWON</a>. Je suis un véritable passionné d'histoires criminelles, de mystères et d'enquêtes. Pendant longtemps, je gardais ces histoires pour moi ou je n'en parlais qu'à mes amis.</p>
+          <p>J'ai construit DOSSIER 212 parce que je voulais un espace dédié pour partager les affaires les plus fascinantes, effrayantes et complexes que je découvre et étudie. Au lieu de me contenter de les raconter à mes amis, j'ai décidé qu'il était temps de vous les raconter à tous.</p>
+          <p>Vous trouverez ici de véritables archives documentant des affaires, des disparitions et des mystères non résolus du Maroc et du monde entier, soigneusement reconstituées pour les passionnés de true crime.</p>
+          
+          <h3 style="margin-top: 2rem; font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">Soumettre une Affaire / Informations Anonymes</h3>
+          <p>Vous avez des informations sur une affaire ? Vous souhaitez que nous enquêtions sur une histoire ou une disparition spécifique ? Contactez-nous. Nous traitons toutes les requêtes avec la plus stricte confidentialité. <strong>La protection de votre identité et la garantie de votre anonymat sont notre priorité absolue.</strong></p>
+          <p>Envoyez-nous un message privé sur Instagram : <a href="https://instagram.com/dossier.212" target="_blank" style="color: var(--accent); font-weight: bold;">@dossier.212</a></p>
+        <% } %>
+      </div>
+    </div>
+  </main>
+  
+  <%- include('../partials/footer') %>
+  <script src="/js/main.js"></script>
+</body>
+</html>
+"""
+
+with open('views/public/a-propos.ejs', 'w', encoding='utf-8') as f:
+    f.write(html)
