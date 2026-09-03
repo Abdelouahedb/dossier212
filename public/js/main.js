@@ -190,22 +190,10 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 function initDeclassifiedScramble() {
   const elements = document.querySelectorAll('.scramble-text');
   
-  // Replace the chaotic scramble with a buttery-smooth, cinematic GSAP blur reveal
+  // Use pure CSS transitions instead of external GSAP library to guarantee it runs everywhere
   elements.forEach((el, index) => {
-    gsap.fromTo(el, 
-      { 
-        opacity: 0, 
-        filter: "blur(15px)", 
-        y: 15 
-      },
-      { 
-        opacity: 1, 
-        filter: "blur(0px)", 
-        y: 0, 
-        duration: 1.2, 
-        ease: "power2.out",
-        delay: 0.1 + (index * 0.15) // Stagger them slightly if there are multiple
-      }
-    );
+    setTimeout(() => {
+      el.classList.add('revealed');
+    }, 100 + (index * 150)); // Stagger the animation
   });
 }
