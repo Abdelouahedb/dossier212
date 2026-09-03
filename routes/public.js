@@ -131,4 +131,41 @@ router.get('/set-theme/:theme', (req, res) => {
   res.redirect(req.get('referer') || '/');
 });
 
+
+// SEO: robots.txt
+router.get('/robots.txt', (req, res) => {
+  res.type('text/plain');
+  res.send(`User-agent: *\nAllow: /\n\nSitemap: https://www.dossier212.page/sitemap.xml`);
+});
+
+// SEO: Dynamic Sitemap
+router.get('/sitemap.xml', async (req, res) => {
+  try {
+    const db = await getDb();
+    const dossiers = await fetchAll(db, "SELECT slug, date_creation FROM dossiers WHERE est_publie = 1 ORDER BY date_creation DESC");
+    
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+    
+    // Homepage
+    xml += '  <url>\n    <loc>https://www.dossier212.page/</loc>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n';
+    // Categories
+    xml += '  <url>\n    <loc>https://www.dossier212.page/categorie/maroc</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n';
+    xml += '  <url>\n    <loc>https://www.dossier212.page/categorie/monde</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n';
+    
+    // Dossiers
+    for (const d of dossiers) {
+      xml += `  <url>\n    <loc>https://www.dossier212.page/dossier/${d.slug}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.9</priority>\n  </url>\n`;
+    }
+    
+    xml += '</urlset>';
+    
+    res.header('Content-Type', 'application/xml');
+    res.send(xml);
+  } catch (err) {
+    console.error(err);
+    res.status(500).end();
+  }
+});
+
 module.exports = router;
