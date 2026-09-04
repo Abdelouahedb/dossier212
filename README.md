@@ -32,9 +32,9 @@ Designed with a cinematic, "declassified" aesthetic, the platform allows adminis
 
 ---
 
-## 🤖 AI / Developer Notes (CRITICAL)
+## 🏗️ Architecture & Developer Notes
 
-If you are an AI assistant (like Codex, Cursor, or Gemini) reading this to help the user modify the code, you **must** understand the following architectural decisions to avoid breaking the application:
+When contributing to or modifying this codebase, please review the following architectural constraints to ensure compatibility with the serverless environment:
 
 ### 1. Database Query Wrapping (Postgres vs SQLite)
 This project originally used a local `sql.js` (SQLite) database, but was refactored for Vercel Serverless to use `pg` (PostgreSQL). 
